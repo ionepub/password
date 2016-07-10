@@ -17,7 +17,7 @@ if(!in_array($act, $act_allow_list)){
 	exit('Access denied');
 }
 
-$base_pass_key = "gwNgoX4cUvbAppVso28C1afA5v1ZVI4m"; //平台密钥
+$base_pass_key = ""; //平台密钥
 
 /**
  * check login
