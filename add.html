@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>新增记录</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1, user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<link rel="stylesheet" type="text/css" href="css/mui.min.css"/>
+	</head>
+	<body>
+		<header class="mui-bar mui-bar-nav">
+		    <a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+		    <h1 class="mui-title">新增记录</h1>
+		</header>
+		<div class="mui-content" style="margin-top: 10px;">
+		    <form class="mui-input-group">
+		        <div class="mui-input-row">
+		            <label>标题</label>
+		            <input type="text" class="mui-input-clear" placeholder="输入标题" id="title">
+		        </div>
+		        <div class="mui-input-row">
+		            <label>密码</label>
+		            <input type="password" class="mui-input-password" placeholder="要保存的密码" id="password">
+		        </div>
+		        <div class="mui-input-row">
+		            <label>密钥</label>
+		            <input type="text" class="mui-input-clear" placeholder="输入加密密钥" id="pwdkey">
+		        </div>
+		        <div class="mui-input-row">
+		            <p style="color:red;padding-top:8px;font-weight:bold;text-indent:15px;">系统不会存储您的密钥，请您务必牢记密钥</p>
+		        </div>
+		    </form>
+		    <div class="mui-input-row" style="margin: 10px 5px;">
+				<textarea id="note" rows="3" placeholder="备注信息（选填）"></textarea>
+			</div>
+		</div>
+		
+		<div class="mui-content-padded" style="width: 90%;text-align: center;margin-left:5%;">
+			<button id='add' class="mui-btn mui-btn-primary" style="width: 100%;" disabled>确 认</button>
+		</div>
+		<script type="text/javascript" src="js/mui.min.js" ></script>
+		<script>
+		mui.init();
+		mui.ready(function(){
+			//check login
+			mui.getJSON("cloud.php", {act:'checkLogin'}, function(response){
+				if(response.code === 1){
+					document.getElementById('add').disabled = false;
+				}else{
+					location.href = "login.html";
+				}
+			})
+			mui("body").on("tap", "#add", function(){
+				var title = document.getElementById('title').value;
+				var pwd = document.getElementById('password').value;
+				var pwdkey = document.getElementById('pwdkey').value;
+				var note = document.getElementById('note').value;
+				if(title == ""){
+					mui.toast("请输入标题");
+					return false;
+				}
+				if(pwd == ""){
+					mui.toast("请输入要加密的密文");
+					return false;
+				}
+				if(pwdkey == ""){
+					mui.toast("请输入加密密文的密钥");
+					return false;
+				}
+				if(pwdkey.length < 6){
+					mui.toast("密钥太简单了");
+					return false;
+				}
+				document.getElementById('add').disabled = true;
+				mui.post("cloud.php?act=add", {password:pwd, title:title,pwdkey:pwdkey, note:note}, function(response){
+					response = JSON.parse(response);
+					if(response.code == 0){
+						mui.toast("添加成功");
+						setTimeout(function(){
+							location.href = 'index.html';
+						}, 800);
+					}else{
+						mui.toast(response.message);
+						document.getElementById('add').disabled = false;
+						return false;
+					}
+				})
+			})
+		})
+		</script>
+	</body>
+</html>

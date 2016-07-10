@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>设置</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<link rel="stylesheet" href="css/mui.min.css">
+	</head>
+	<body>
+		<header class="mui-bar mui-bar-nav">
+		    <a class=" mui-icon mui-icon-left-nav mui-pull-left"></a>
+		    <h1 class="mui-title">设置</h1>
+		</header>
+		<div class="mui-content">
+		    <ul class="mui-table-view">
+	           	<li class="mui-table-view-cell">
+	           		<a class="mui-navigate-right editPwd">
+	          				修改密码
+	           		</a>
+	            	</li>
+	            	<li class="mui-table-view-cell">
+	                		<a class="mui-navigate-right editEmail">
+					修改邮箱
+	                		</a>
+	            	</li>
+	            	<li class="mui-table-view-cell">
+	                		<a class="mui-navigate-right helppage">
+					帮助
+	                		</a>
+	            	</li>
+	            	<li class="mui-table-view-cell">
+	                		<a class="mui-navigate-right infopage">
+					关于
+	                		</a>
+	            	</li>
+	        	    </ul>
+		    <div style="margin-top: 10px;text-align: center;">
+		    	<button class="mui-btn mui-btn-red" id="logout" style="width: 90%;" disabled>
+				退出登录
+	           	</button>
+		    </div>
+		</div>
+		<script type="text/javascript" src="js/mui.min.js" ></script>
+		<script type="text/javascript">
+		mui.init();
+		mui("body").on("tap", ".editPwd", function(){
+			location.href = "password.html";
+		})
+		mui("body").on("tap", ".editEmail", function(){
+			location.href = "email.html";
+		})
+		mui("body").on("tap", ".helppage", function(){
+			location.href = "help.html";
+		})
+		mui("body").on("tap", ".infopage", function(){
+			location.href = "info.html";
+		})
+		mui("body").on("tap", ".mui-bar-nav a.mui-icon-left-nav", function(){
+			location.href = "index.html";
+		})
+		mui.ready(function() {
+			//check login
+			mui.getJSON("cloud.php", {act:'checkLogin'}, function(response){
+				if(response.code === 1){
+					document.getElementById('logout').disabled = false;
+				}else{
+					location.href = "login.html";
+				}
+			})
+			mui("body").on("tap", "#logout", function(){
+				mui.post("cloud.php?act=logout", {}, function(){
+					location.href = "login.html";
+				})
+			})
+		})
+		</script>
+	</body>
+</html>

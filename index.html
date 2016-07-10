@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>密码管家</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1, user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<link rel="stylesheet" type="text/css" href="css/mui.min.css"/>
+		<style>
+			.mui-table h4,.mui-table h5,.mui-table .mui-h5,.mui-table .mui-h6,.mui-table p{
+		        margin-top: 0;
+		    }
+		    .mui-table h4{
+		        line-height: 21px;
+		        font-weight: 500;
+		    }
+		</style>
+	</head>
+	<body>
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-icon mui-icon-gear mui-pull-left"></a>
+			<a class="mui-icon mui-icon-plusempty mui-pull-right"></a>
+		    <h1 class="mui-title">密码管家</h1>
+		</header>
+	    	<div id="pullrefresh" class="mui-content mui-scroll-wrapper" style="margin-top:3px;">
+	    		<div class="mui-scroll">
+			    	<ul class="mui-table-view mui-table-view-striped mui-table-view-condensed ">
+				        
+			        	</ul>
+	    		</div>
+		</div>
+		<script type="text/javascript" src="js/mui.min.js" ></script>
+		<script>
+		mui.init({
+			pullRefresh: {
+				container: '#pullrefresh',
+				down: {
+					callback: pulldownRefresh
+				},
+				up: {
+					contentrefresh: '正在加载...',
+					callback: pullupRefresh
+				}
+			}
+		});
+		var page = 1;
+		/**
+		 * 下拉刷新具体业务实现
+		 */
+		function pulldownRefresh() {
+			page = 1;
+			mui.getJSON("cloud.php", {act:'list', page:page}, function(response){
+				if(response.code == 0){
+					var table = document.body.querySelector('.mui-table-view');
+					if(response.data.list != ""){
+						table.innerHTML = response.data.list;
+						page++;
+					}else{
+						//没有更多数据
+						table.innerHTML = response.data.list;
+					}
+				}else{
+					mui.toast(response.message);
+				}
+				mui('#pullrefresh').pullRefresh().endPulldownToRefresh();
+				mui('#pullrefresh').pullRefresh().refresh(true);
+			})
+		}
+		/**
+		 * 上拉加载具体业务实现
+		 */
+		function pullupRefresh() {
+			mui.getJSON("cloud.php", {act:'list', page:page}, function(response){
+				if(response.code == 0){
+					if(response.data.list != ""){
+						var table = document.body.querySelector('.mui-table-view');
+						table.innerHTML += response.data.list;
+						page++;
+						mui('#pullrefresh').pullRefresh().endPullupToRefresh(false);
+					}else{
+						//没有更多数据
+						mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+					}
+				}else{
+					mui.toast(response.message);
+					mui('#pullrefresh').pullRefresh().endPullupToRefresh(true);
+				}
+			})
+		}
+		mui.ready(function() {
+			//check login
+			mui.getJSON("cloud.php", {act:'checkLogin'}, function(response){
+				if(response.code === 1){
+					mui('#pullrefresh').pullRefresh().pullupLoading();
+				}else{
+					location.href = "login.html";
+				}
+			})
+			mui("body").on("tap", ".mui-bar-nav .mui-icon-gear", function(){
+				location.href = 'ucenter.html';
+			})
+			mui("body").on("tap", ".mui-bar-nav .mui-icon-plusempty", function(){
+				location.href = 'add.html';
+			})
+			mui("body").on("tap", ".mui-table-view-cell", function(){
+				location.href = 'edit.html#'+this.getAttribute("data-id");
+			})
+			mui("body").on("tap", ".mui-table-view-cell .mui-btn-red", function(e){
+				e.detail.gesture.preventDefault();
+				var btnArray = ['删除', '取消'];
+				var elem = this.parentNode.parentNode;
+				var id = this.getAttribute("data-id");
+				mui.prompt('请输入DELETE以确认删除', 'DELETE', '密码管家提醒您', btnArray, function(e) {
+					if (e.index == 0) {
+						// info.innerText = '谢谢你的评语：' + e.value;
+						if(e.value === 'DELETE'){
+							removeIt(id, elem);
+						}else{
+							mui.toast("删除失败");
+							setTimeout(function() {
+								mui.swipeoutClose(elem);
+							}, 0);
+						}
+					} else {
+						// cancel
+						setTimeout(function() {
+							mui.swipeoutClose(elem);
+						}, 0);
+					}
+				})
+			})
+		});
+		function removeIt(id, elem){
+			if (typeof id != "string" || id=="" || typeof elem == 'undefined') {
+				mui.toast("删除失败");
+				if(typeof elem != "undefined"){
+					mui.swipeoutClose(elem);
+				}
+				return false;
+			};
+			mui.post("cloud.php?act=remove", {id:id}, function(response){
+				response = JSON.parse(response);
+				if(response.code == 0){
+					mui.toast("删除成功");
+					elem.parentNode.removeChild(elem);
+				}else{
+					mui.toast(response.message);
+					mui.swipeoutClose(elem);
+					return false;
+				}
+			})
+		}
+		</script>
+	</body>
+</html>
