@@ -1,6 +1,6 @@
 # Manage your passwords 密码管家
 
-这是一个简单的密码管理系统，使用mui搭建前端页面，php做后端，数据保存在bmob平台上。
+这是一个简单的密码管理系统，使用mui搭建前端页面，php做后端，数据保存在bmob平台上。体验地址：http://mypass.ionepub.tk
 
 示例如下：
 
